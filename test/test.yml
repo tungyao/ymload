@@ -1,5 +1,5 @@
 server:
-  port: 8080
+   port: 8080
   url: www.yaop.ink
 server0:
   yashua: 200

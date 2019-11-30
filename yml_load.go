@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"reflect"
 	"strings"
 )
 
@@ -73,3 +74,77 @@ func format(b []byte) []byte {
 	}
 	return out
 }
+func CheckConfig(nw interface{}, deft interface{}) {
+	switch reflect.TypeOf(nw).Kind() {
+	case reflect.Struct:
+		t := reflect.TypeOf(nw).Elem()
+		v := reflect.ValueOf(nw).Elem()
+		for i := 0; i < t.NumField(); i++ {
+			n := v.Field(i)
+			switch n.Kind() {
+			case reflect.String:
+				if n.IsZero() {
+					n.SetString(reflect.ValueOf(deft).Field(i).String())
+				}
+			case reflect.Int:
+				if n.IsZero() {
+					n.SetInt(reflect.ValueOf(deft).Field(i).Int())
+				}
+			case reflect.Int64:
+				if n.IsZero() {
+					n.SetInt(reflect.ValueOf(deft).Field(i).Int())
+				}
+			case reflect.Bool:
+				if n.IsZero() {
+					n.SetBool(reflect.ValueOf(deft).Field(i).Bool())
+				}
+			case reflect.Float64:
+				if n.IsZero() {
+					n.SetFloat(reflect.ValueOf(deft).Field(i).Float())
+				}
+			}
+		}
+	case reflect.Ptr:
+		n := reflect.ValueOf(nw).Elem()
+		switch n.Kind() {
+		case reflect.Int:
+			if n.IsZero() && n.CanSet() {
+				n.SetInt(reflect.ValueOf(deft).Int())
+			}
+		case reflect.String:
+			if n.IsZero() && n.CanSet() {
+				n.SetString(reflect.ValueOf(deft).String())
+			}
+		case reflect.Struct:
+			t := reflect.TypeOf(nw).Elem()
+			v := reflect.ValueOf(nw).Elem()
+			for i := 0; i < t.NumField(); i++ {
+				n := v.Field(i)
+				switch n.Kind() {
+				case reflect.String:
+					if n.IsZero() {
+						n.SetString(reflect.ValueOf(deft).Field(i).String())
+					}
+				case reflect.Int:
+					if n.IsZero() {
+						n.SetInt(reflect.ValueOf(deft).Field(i).Int())
+					}
+				case reflect.Int64:
+					if n.IsZero() {
+						n.SetInt(reflect.ValueOf(deft).Field(i).Int())
+					}
+				case reflect.Bool:
+					if n.IsZero() {
+						n.SetBool(reflect.ValueOf(deft).Field(i).Bool())
+					}
+				case reflect.Float64:
+					if n.IsZero() {
+						n.SetFloat(reflect.ValueOf(deft).Field(i).Float())
+					}
+				}
+			}
+		}
+
+	}
+}
+
