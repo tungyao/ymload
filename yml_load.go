@@ -23,6 +23,9 @@ func Format(filename string) map[string]map[string]interface{} {
 	for {
 		line, err := buf.ReadString('\r')
 		line = strings.TrimSpace(line)
+		if line[0] == '#' {
+			continue
+		}
 		if line[len(line)-1:] == ":" {
 			mp[line[:len(line)-1]] = make(map[string]interface{})
 			last = line[:len(line)-1]
@@ -147,4 +150,3 @@ func CheckConfig(nw interface{}, deft interface{}) {
 
 	}
 }
-
