@@ -22,6 +22,9 @@ func Format(filename string) map[string]map[string]interface{} {
 	for {
 		line, err := buf.ReadString('\r')
 		line = strings.TrimSpace(line)
+		if len(line) == 0 {
+			continue
+		}
 		if line[0] == '#' {
 			continue
 		}
