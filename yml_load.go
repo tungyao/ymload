@@ -21,7 +21,7 @@ func Format(filename string) map[string]map[string]interface{} {
 	buf := bufio.NewReader(f)
 	last := ""
 	for {
-		line, err := buf.ReadString('\r')
+		line, err := buf.ReadString('\n')
 		line = strings.TrimSpace(line)
 		if len(line) == 0 {
 			break
@@ -29,10 +29,10 @@ func Format(filename string) map[string]map[string]interface{} {
 		if line[0] == '#' {
 			continue
 		}
+		fmt.Println(line[len(line)-1:], len(line))
 		if line[len(line)-1:] == ":" {
 			mp[line[:len(line)-1]] = make(map[string]interface{})
 			last = line[:len(line)-1]
-			fmt.Println("last:", last)
 			continue
 		} else {
 			if last == "" {
