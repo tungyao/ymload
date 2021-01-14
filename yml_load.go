@@ -35,8 +35,10 @@ func Format(filename string) map[string]map[string]interface{} {
 			fmt.Println("last:", last)
 			continue
 		} else {
+			if last == "" {
+				continue
+			}
 			s := SplitString([]byte(line), []byte(": "))
-			fmt.Println("last get:", last)
 			mp[last][string(format(s[0]))] = string(s[1])
 		}
 		if err != nil {
