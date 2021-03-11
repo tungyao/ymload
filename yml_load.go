@@ -39,7 +39,11 @@ func Format(filename string) map[string]map[string]interface{} {
 				continue
 			}
 			s := SplitString([]byte(line), []byte(": "))
-			mp[last][string(format(s[0]))] = string(s[1])
+			if string(s[1]) == "__" {
+				mp[last][string(format(s[0]))] = ""
+			} else {
+				mp[last][string(format(s[0]))] = string(s[1])
+			}
 		}
 		if err != nil {
 			if err == io.EOF {
