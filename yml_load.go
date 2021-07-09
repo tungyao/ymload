@@ -2,7 +2,6 @@ package ymload
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -29,7 +28,6 @@ func Format(filename string) map[string]map[string]interface{} {
 		if line[0] == '#' {
 			continue
 		}
-		fmt.Println(line[len(line)-1:], len(line))
 		if line[len(line)-1:] == ":" {
 			mp[line[:len(line)-1]] = make(map[string]interface{})
 			last = line[:len(line)-1]
