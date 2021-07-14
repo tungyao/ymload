@@ -2,13 +2,14 @@ package ymload
 
 import (
 	"bufio"
+	"bytes"
 	"io"
 	"log"
 	"os"
 	"strings"
 )
 
-func Format(filename string) map[string]map[string]interface{} {
+func Format(filename string) map[string]map[string]string {
 	if filename[len(filename)-4:] != ".yml" {
 		filename += ".yml"
 	}
@@ -16,7 +17,7 @@ func Format(filename string) map[string]map[string]interface{} {
 	if err != nil {
 		log.Panicln(err)
 	}
-	mp := make(map[string]map[string]interface{})
+	mp := make(map[string]map[string]string)
 	buf := bufio.NewReader(f)
 	last := ""
 	for {
@@ -29,18 +30,27 @@ func Format(filename string) map[string]map[string]interface{} {
 			continue
 		}
 		if line[len(line)-1:] == ":" {
-			mp[line[:len(line)-1]] = make(map[string]interface{})
+			mp[line[:len(line)-1]] = make(map[string]string)
 			last = line[:len(line)-1]
 			continue
 		} else {
-			if last == "" {
-				continue
-			}
-			s := SplitString([]byte(line), []byte(": "))
-			if string(s[1]) == "__" {
-				mp[last][string(format(s[0]))] = ""
-			} else {
-				mp[last][string(format(s[0]))] = string(s[1])
+			var isExec bool
+			for i := 0; i < len(line); i++ {
+				// 依次解析每一行
+				if isExec {
+					break
+				}
+				switch line[i] {
+				case ':':
+					if i+2 >= len(line) {
+						mp[last][format(line[:i])] = ""
+						isExec = true
+						break
+					}
+					mp[last][format(line[:i])] = getString(line[i+2:])
+					isExec = true
+					break
+				}
 			}
 		}
 		if err != nil {
@@ -51,6 +61,38 @@ func Format(filename string) map[string]map[string]interface{} {
 	}
 	return mp
 }
+
+func getString(s string) string {
+	for i, _ := range s {
+		var lst int
+		switch s[i] {
+		case '"':
+			lst = len(s) - 2
+			if lst < 0 {
+				lst = 0
+			}
+			i += 1
+			if i > lst {
+				i = 0
+			}
+			return s[i:lst]
+		case '\'':
+			lst = len(s) - 2
+			if lst < 0 {
+				lst = 0
+			}
+			i += 1
+			println(i, lst)
+			if i > lst {
+				i = 0
+			}
+			return s[i:lst]
+		default:
+			return s
+		}
+	}
+	return ""
+}
 func SplitString(str []byte, p []byte) [][]byte {
 	group := make([][]byte, 0)
 	ps := 0
@@ -59,7 +101,6 @@ func SplitString(str []byte, p []byte) [][]byte {
 			if len(p) == 1 {
 				group = append(group, str[ps:i])
 				ps = i + len(p)
-				//return [][]byte{str[:i], str[i+1:]}
 			} else {
 				for j := 1; j < len(p); j++ {
 					if str[i+j] != p[j] {
@@ -68,7 +109,6 @@ func SplitString(str []byte, p []byte) [][]byte {
 						group = append(group, str[ps:i])
 						ps = i + len(p)
 					}
-					//return [][]byte{str[:i], str[i+len(p):]}
 				}
 			}
 		} else {
@@ -78,12 +118,12 @@ func SplitString(str []byte, p []byte) [][]byte {
 	group = append(group, str[ps:])
 	return group
 }
-func format(b []byte) []byte {
+func format(b string) string {
 	out := make([]byte, 0)
 	for _, v := range b {
 		if v != ' ' {
-			out = append(out, v)
+			out = append(out, uint8(v))
 		}
 	}
-	return out
+	return bytes.NewBuffer(out).String()
 }

@@ -1,10 +1,7 @@
 main_server:
-  name: client0
-  ip: 192.168.0.102
-  port: 9102
-  password: nil
+  any: "password:123123"
 two_server:
   name: client1
   ip: 192.168.0.106
   port: 9102
-  password: nil
+  password: ""
